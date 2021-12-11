@@ -32,6 +32,13 @@ def invest():
             old_amount = db.session.query(User.User.balance).filter_by(nic=data['nic']).first()
             amount = float(old_amount[0]) + float(data['amount'])
             db.session.query(User.User).filter_by(nic=data['nic']).update(dict(balance=amount))
+            row_count = db.session.query(Account.Account).count()
+            if(row_count <=0):
+                db.session.add(Account.Account(main_balance=amount))
+            else:
+                o_balance = db.session.query(Account.Account.main_balance).filter_by(id=1).first()
+                n_balance = o_balance[0] + float(data['amount'])
+                db.session.query(Account.Account).filter_by(id=1).update(dict(main_balance=n_balance))
             db.session.commit()
             return json.dumps({ 'status':'200','message':'success' }),200
         else:
